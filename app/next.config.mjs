@@ -4,6 +4,8 @@ import withSvgr from 'next-plugin-svgr';
 const nextConfig = withSvgr({
   experimental: {
     optimizePackageImports: ['ai', 'lucide-react'],
+    // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    missingSuspenseWithCSRBailout: false,
   },
   rewrites: async () => ({
     fallback: [
