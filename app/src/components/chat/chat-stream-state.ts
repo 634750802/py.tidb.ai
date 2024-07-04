@@ -1,0 +1,10 @@
+export const enum AppChatStreamState {
+  CONNECTING = 'CONNECTING', // only client side
+  CREATING = 'CREATING',
+  KG_RETRIEVING = 'KG_RETRIEVING',
+  SEARCHING = 'SEARCHING',
+  RERANKING = 'RERANKING',
+  GENERATING = 'GENERATING',
+  FINISHED = 'FINISHED',
+  ERROR = 'ERROR',
+}
