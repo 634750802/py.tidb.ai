@@ -1,6 +1,6 @@
 'use client';
 
-import { type Feedback, FeedbackType, listFeedbacks } from '@/api/feedback';
+import { type Feedback, FeedbackType, listFeedbacks } from '@/api/feedbacks';
 import { AdminPageHeading } from '@/components/admin-page-heading';
 import { datetime } from '@/components/cells/datetime';
 import { DataTableRemote } from '@/components/data-table-remote';
