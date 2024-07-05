@@ -90,7 +90,7 @@ export function Nav () {
         title: 'Admin',
         items: [
           { href: '/dashboard', title: 'Overview', icon: ActivitySquareIcon, disabled: true },
-          { href: '/feedbacks', title: 'Feedbacks', icon: MessageCircleQuestionIcon, disabled: true },
+          { href: '/feedbacks', title: 'Feedbacks', icon: MessageCircleQuestionIcon },
           { href: '/documents', title: 'Documents', icon: FilesIcon },
           { href: '/chat-engines', title: 'Chat Engines', icon: BotMessageSquareIcon },
           { href: '/settings', title: 'Settings', icon: CogIcon, disabled: true },
