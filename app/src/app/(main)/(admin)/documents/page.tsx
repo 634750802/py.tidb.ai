@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import type { CellContext, ColumnDef } from '@tanstack/react-table';
 import { createColumnHelper } from '@tanstack/table-core';
 import isHotkey from 'is-hotkey';
-import Link from 'next/link';
 import { useRef } from 'react';
 
 const helper = createColumnHelper<Document>();
@@ -20,7 +19,7 @@ const href = (cell: CellContext<any, string>) => <a className="underline" href={
 
 const columns = [
   helper.accessor('id', { cell: mono }),
-  helper.accessor('name', { cell: (cell) => <Link className="underline font-mono" href={`/chat-engines/${cell.row.original.id}`}>{cell.getValue()}</Link> }),
+  helper.accessor('name', { cell: mono }),
   helper.accessor('source_uri', { cell: href }),
   helper.accessor('mime_type', { cell: mono }),
   helper.display({ id: 'content', cell: ({ row }) => <DocumentPreviewDialog title={row.original.source_uri} mime={row.original.mime_type} content={row.original.content} /> }),
