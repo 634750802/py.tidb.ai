@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useHref } from '@/components/use-href';
 import { cn } from '@/lib/utils';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { ActivitySquareIcon, BinaryIcon, BotMessageSquareIcon, CogIcon, CommandIcon, FilesIcon, HomeIcon, MenuIcon, MessageCircleQuestionIcon, MessagesSquareIcon, PlusIcon } from 'lucide-react';
+import { ActivitySquareIcon, BinaryIcon, BotMessageSquareIcon, CogIcon, CommandIcon, FilesIcon, GaugeIcon, HomeIcon, MenuIcon, MessageCircleQuestionIcon, MessagesSquareIcon, PlusIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
@@ -95,7 +95,9 @@ export function Nav () {
           { href: '/indexes', title: 'Indexes', icon: BinaryIcon },
           { href: '/chat-engines', title: 'Chat Engines', icon: BotMessageSquareIcon },
           { href: '/settings', title: 'Settings', icon: CogIcon },
-        ].map(i => ({ ...i, disabled: true })),
+        ].map(i => ({ ...i, disabled: true })).concat(
+          { href: '/index-progress', title: 'Index Progress', icon: GaugeIcon, disabled: false },
+        ),
         sectionProps: { className: 'mt-auto mb-0' },
       });
     }
