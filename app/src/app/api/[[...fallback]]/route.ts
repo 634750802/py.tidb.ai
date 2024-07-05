@@ -24,8 +24,6 @@ function handler (request: NextRequest) {
 
 export { handler as GET, handler as POST, handler as DELETE, handler as HEAD, handler as PUT, handler as PATCH };
 
-export const config = {
-  runtime: 'edge',
-};
+export const runtime = 'edge';
 
 export const dynamic = 'force-dynamic';
