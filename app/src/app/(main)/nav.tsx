@@ -93,8 +93,8 @@ export function Nav () {
           { href: '/feedbacks', title: 'Feedbacks', icon: MessageCircleQuestionIcon },
           { href: '/documents', title: 'Documents', icon: FilesIcon },
           { href: '/chat-engines', title: 'Chat Engines', icon: BotMessageSquareIcon },
-          { href: '/settings', title: 'Settings', icon: CogIcon, disabled: true },
           { href: '/index-progress', title: 'Index Progress', icon: GaugeIcon },
+          { href: '/settings', title: 'Settings', icon: CogIcon, disabled: true },
         ],
         sectionProps: { className: 'mt-auto mb-0' },
       });
