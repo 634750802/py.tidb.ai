@@ -51,7 +51,7 @@ export interface UseChatReturns {
 
   reset (): void;
 
-  post (params: PostChatParams, onResponse?: (response: Response) => void): Promise<void>;
+  post (params: Omit<PostChatParams, 'chat_id'>, onResponse?: (response: Response) => void): Promise<void>;
 
   regenerate (id: number): Promise<void>;
 }
@@ -69,11 +69,11 @@ export function useChat ({ chat: initialChat, messages: initialMessages = [], on
       return Promise.reject(new Error('Last message not finished.'));
     }
     const ac = abortControllerRef.current = new AbortController();
-    setPostingMessage(params);
+    setPostingMessage({ ...params, chat_id: chat?.id });
     setError(undefined);
     setOngoingMessage({ trace_url: null, state: AppChatStreamState.CONNECTING, display: 'Connecting to server...', content: '', finished: false });
     try {
-      for await (let part of api.chat({ ...params, signal: ac.signal }, onResponse)) {
+      for await (let part of api.chat({ ...params, chat_id: chat?.id, signal: ac.signal }, onResponse)) {
         if (ac.signal.aborted) {
           break;
         }
