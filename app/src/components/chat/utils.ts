@@ -1,4 +1,4 @@
-export type ChatEngineOptions = any // TODO;
+export type { ChatEngineOptions } from '@/api/chat-engines';
 
 export function parseSource (uri?: string) {
   if (!uri) {

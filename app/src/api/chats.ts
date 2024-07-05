@@ -1,3 +1,4 @@
+import type { ChatEngineOptions } from '@/api/chat-engines';
 import { BASE_URL, buildUrlParams, handleErrors, handleResponse, opaqueCookieHeader, type Page, type PageParams, zodPage } from '@/lib/request';
 import { zodJsonDate } from '@/lib/zod';
 import { parseStreamPart } from 'ai';
@@ -6,7 +7,7 @@ import { z } from 'zod';
 export interface Chat {
   title: string;
   engine_id: number;
-  engine_options: object;
+  engine_options: ChatEngineOptions;
   deleted_at: Date | null;
   user_id: string | null;
   updated_at: Date;
@@ -48,7 +49,7 @@ export interface ChatMessageSource {
 const chatSchema = z.object({
   title: z.string(),
   engine_id: z.number(),
-  engine_options: z.string().transform(value => JSON.parse(value) as object),
+  engine_options: z.string().transform(value => JSON.parse(value) as ChatEngineOptions),
   deleted_at: zodJsonDate().nullable(),
   user_id: z.string().nullable(),
   updated_at: zodJsonDate(),

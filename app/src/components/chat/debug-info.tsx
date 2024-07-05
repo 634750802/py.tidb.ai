@@ -1,5 +1,5 @@
+import { ChatEngineOptionsDetails } from '@/components/chat-engine/chat-engine-options-details';
 import { useChatEngineOptions } from '@/components/chat/context';
-import { KnowledgeGraphDebugInfo } from '@/components/chat/knowledge-graph-debug-info';
 // import { MessageLangfuse } from '@/components/chat/message-langfuse';
 import type { MyConversationMessageGroup } from '@/components/chat/use-grouped-conversation-messages';
 import { Dialog, DialogContent, DialogHeader, DialogPortal, DialogTrigger } from '@/components/ui/dialog';
@@ -13,11 +13,10 @@ export interface DebugInfoProps {
 
 export function DebugInfo ({ group }: DebugInfoProps) {
   const traceURL = group.assistantMessage.trace_url;
-  const { graph_retriever, retriever, prompts, llm, reranker, metadata_filter } = useChatEngineOptions() ?? {};
+  const chatEngineOptions = useChatEngineOptions();
 
   return (
-    <div className="my-2 p-2 bg-card border rounded text-xs">
-      <h6 className="text-sm font-bold leading-6">Debug info</h6>
+    <div className="my-2 p-4 space-y-4 bg-card border rounded text-xs">
       {traceURL && <div className="flex items-center gap-4 text-xs flex-wrap">
         <a className="underline" target="_blank" href={traceURL}>
           <WorkflowIcon className="inline w-3 h-3 mr-1" />
@@ -25,23 +24,9 @@ export function DebugInfo ({ group }: DebugInfoProps) {
         </a>
       </div>}
       {/*<MessageLangfuse group={group} />*/}
-      {graph_retriever?.enable && <KnowledgeGraphDebugInfo group={group} />}
-      {graph_retriever?.top_k && <div className="mt-2"><b>Knowledge Graph Top K</b>: {graph_retriever.top_k}</div>}
-      {graph_retriever?.reranker && (<div className="mt-2"><b>Knowledge Graph Reranker</b>: {graph_retriever.reranker.provider} {graph_retriever.reranker.options?.model}</div>)}
-      {retriever?.top_k && <div className="mt-2"><b>Top K</b>: {retriever.top_k}</div>}
-      {retriever?.search_top_k && <div className="mt-2"><b>Search Top K</b>: {retriever.search_top_k}</div>}
-      {reranker && (<div className="mt-2"><b>Reranker</b>: {reranker.provider} {reranker.options?.model}</div>)}
-      {llm && (<div className="mt-2"><b>LLM</b>: {llm.provider} {llm.options?.model}</div>)}
-      {prompts && (
-        <div className="mt-2">
-          <div className="font-bold">
-            Prompts
-          </div>
-          <ul className="pl-2">
-            {prompts.condenseQuestion && <PromptDialog title="Condense Question" prompt={prompts.condenseQuestion} />}
-            {prompts.refine && <PromptDialog title="Refine" prompt={prompts.refine} />}
-            {prompts.textQa && <PromptDialog title="Text QA" prompt={prompts.textQa} />}
-          </ul>
+      {chatEngineOptions && (
+        <div className='space-y-4'>
+          <ChatEngineOptionsDetails detailed={false} options={chatEngineOptions} />
         </div>
       )}
     </div>

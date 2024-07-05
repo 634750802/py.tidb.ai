@@ -53,8 +53,8 @@ function IndexCard ({ title, progress }: { title: string, progress: IndexProgres
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
       </CardHeader>
       <CardContent className='text-sm space-y-2'>
-        {progress.not_started && <Detail title="Not started" value={progress.not_started} />}
-        {progress.pending && <Detail title="Pending" value={progress.pending} />}
+        {progress.not_started && <Detail title="Not started" value={progress.not_started} valueClassName='text-muted-foreground' />}
+        {progress.pending && <Detail title="Pending" value={progress.pending} valueClassName='text-muted-foreground' />}
         {progress.running && <Detail title="Running" value={progress.running} valueClassName='text-yellow-500' />}
         {progress.completed && <Detail title="Completed" value={progress.completed} valueClassName='text-green-500' />}
         {progress.failed && <Detail title="Failed" value={progress.failed} valueClassName='text-destructive' />}
