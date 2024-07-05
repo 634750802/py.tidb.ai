@@ -1,49 +1,44 @@
-import type { ChatMessage, ChatMessageSource } from '@/api/chats';
-import type { AppChatStreamState } from '@/components/chat/chat-stream-state';
-import { getChatMessageAnnotations } from '@/components/chat/utils';
-import { Message } from 'ai';
+import type { ChatMessage } from '@/api/chats';
+import { AppChatStreamState } from '@/components/chat/chat-stream-state';
+import { useMyChatContext } from '@/components/chat/context';
+import type { OngoingMessage } from '@/components/chat/use-chat';
 import { useMemo } from 'react';
 
-export type ConversationMessageGroupProps = FinishedConversationMessage | PendingConversationMessage;
+export type MyConversationMessageGroup = FinishedConversationGroup | OngoingConversationMessageGroup;
 
-export type FinishedConversationMessage = {
-  id: string
-  userMessage: Message
-  assistantMessage: Message
-  assistantMessageError?: string;
-  assistantAnnotation: MyChatMessageAnnotation
-  finished: true
+export interface FinishedConversationGroup {
+  id: number;
+  finished: true;
+  userMessage: Pick<ChatMessage, 'content' | 'id'>;
+  assistantMessage: ChatMessage;
 }
 
-export type PendingConversationMessage = {
-  id: string
-  userMessage: Message
-  assistantMessage: Message | undefined
-  assistantMessageError?: string; // This is from server
-  assistantAnnotation: MyChatMessageAnnotation // This could contain error form stream data
-  finished: false
-  error_message?: string
+export interface OngoingConversationMessageGroup {
+  id: number;
+  finished: false;
+  userMessage: Pick<ChatMessage, 'content' | 'id'>;
+  assistantMessage: OngoingMessage;
 }
 
-export type MyChatMessageAnnotation = {
-  ts: number;
-  chat_id?: string;
-  message_id: number;
-  traceURL?: string,
-  context?: ChatMessageSource[],
-  state?: AppChatStreamState,
-  display?: string
-};
+export function getStateOfMessage (message: ChatMessage | OngoingMessage) {
+  if ('state' in message) {
+    return message.state;
+  } else {
+    if (message.finished_at) {
+      return AppChatStreamState.FINISHED;
+    } else {
+      return AppChatStreamState.GENERATE_ANSWER;
+    }
+  }
+}
 
-export const EMPTY_CHAT_MESSAGE_ANNOTATION: MyChatMessageAnnotation = { ts: -1, message_id: -1 };
+export function useGroupedConversationMessages (messages: ChatMessage[], ongoingMessage: OngoingMessage | undefined, isLoading: boolean, error: unknown) {
+  const { postingMessage } = useMyChatContext()
 
-// TODO: refactor
-export function useGroupedConversationMessages (history: ChatMessage[], messages: Message[], isLoading: boolean, error: unknown) {
   return useMemo(() => {
-    const groups: ConversationMessageGroupProps[] = [];
-    let userMessage: Message | undefined;
-    let assistantMessage: Message | undefined;
-    let assistantAnnotation: MyChatMessageAnnotation = EMPTY_CHAT_MESSAGE_ANNOTATION;
+    const groups: MyConversationMessageGroup[] = [];
+    let userMessage: ChatMessage | undefined;
+    let assistantMessage: ChatMessage | undefined;
 
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
@@ -52,46 +47,39 @@ export function useGroupedConversationMessages (history: ChatMessage[], messages
         userMessage = message;
       } else if (message.role === 'assistant') {
         assistantMessage = message;
-        assistantAnnotation = getChatMessageAnnotations(assistantMessage);
       }
       if (userMessage && assistantMessage) {
         groups.push({
           id: userMessage.id,
           userMessage,
           assistantMessage,
-          assistantMessageError: history[i]?.error ?? undefined,
-          assistantAnnotation: { ...assistantAnnotation, traceURL: assistantAnnotation.traceURL ?? history[i]?.trace_url ?? undefined },
           finished: true,
         });
         userMessage = undefined;
         assistantMessage = undefined;
-        assistantAnnotation = EMPTY_CHAT_MESSAGE_ANNOTATION;
       }
     }
 
-    if (userMessage) {
-      groups.push({
-        id: userMessage.id,
-        userMessage,
-        assistantMessage: undefined,
-        assistantAnnotation,
-        finished: false,
-      });
-    }
-
-    if (isLoading) {
-      const group = groups[groups.length - 1];
-      group.finished = false;
-
-      if (!group.assistantAnnotation.state) {
-        group.assistantAnnotation.state = 'CONNECTING' as AppChatStreamState;
+    if (ongoingMessage) {
+      if (userMessage) {
+        groups.push({
+          id: userMessage.id,
+          userMessage,
+          assistantMessage: ongoingMessage,
+          finished: false,
+        });
+      } else if (postingMessage) {
+        groups.push({
+          id: -1,
+          userMessage: { content: postingMessage.content, id: -1 },
+          assistantMessage: ongoingMessage,
+          finished: false,
+        });
+      } else {
+        console.error('No user message for ongoing message.');
       }
-    }
-
-    if (error) {
-      groups[groups.length - 1].finished = true;
     }
 
     return groups;
-  }, [messages, isLoading, error]);
+  }, [messages, ongoingMessage, postingMessage, isLoading, error]);
 }

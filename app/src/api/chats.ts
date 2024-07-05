@@ -1,5 +1,6 @@
 import { BASE_URL, buildUrlParams, handleErrors, handleResponse, opaqueCookieHeader, type Page, type PageParams, zodPage } from '@/lib/request';
 import { zodJsonDate } from '@/lib/zod';
+import { parseStreamPart } from 'ai';
 import { z } from 'zod';
 
 export interface Chat {
@@ -86,6 +87,15 @@ export interface FeedbackParams {
   comment: string;
 }
 
+export interface PostChatParams {
+  chat_id?: string;
+  chat_engine?: string;
+  content: string;
+
+  headers?: HeadersInit;
+  signal?: AbortSignal;
+}
+
 export async function listChats ({ page = 1, size = 10 }: PageParams = {}): Promise<Page<Chat>> {
   return await fetch(BASE_URL + '/api/v1/chats' + '?' + buildUrlParams({ page, size }), {
     headers: await opaqueCookieHeader(),
@@ -114,4 +124,45 @@ export async function postFeedback (chatMessageId: number, feedback: FeedbackPar
     },
     body: JSON.stringify(feedback),
   }).then(handleErrors);
+}
+
+export async function* chat ({ chat_id, chat_engine = 'default', content, headers: headersInit, signal }: PostChatParams, onResponse?: (response: Response) => void) {
+  const headers = new Headers(headersInit);
+  headers.set('Content-Type', 'application/json');
+
+  const response = await fetch(BASE_URL + `/api/v1/chats`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      chat_id,
+      chat_engine,
+      stream: true,
+      messages: [{
+        'role': 'user',
+        content,
+      }],
+    }),
+    signal,
+  }).then(handleErrors);
+
+  onResponse?.(response);
+
+  if (!response.body) {
+    throw new Error(`${response.status} ${response.statusText} Empty response body`);
+  }
+
+  const decoder = new TextDecoder();
+  const reader = response.body.getReader();
+
+  while (true) {
+    const chunk = await reader.read();
+    if (chunk.done) {
+      break;
+    }
+
+    const rawValue = decoder.decode(chunk.value, { stream: true });
+    for (let line of rawValue.split('\n').filter(s => !!s.trim())) {
+      yield parseStreamPart(line);
+    }
+  }
 }

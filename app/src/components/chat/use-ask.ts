@@ -1,24 +1,29 @@
 import { __setMessage } from '@/components/chat/internal';
-import { buildUrlParams } from '@/lib/request';
 import { useRouter } from 'next/navigation';
-import { useCallback, useRef, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
 export function useAsk (onFinish?: () => void) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [transition, startTransition] = useTransition();
   const [engine, setEngine] = useState<number>();
   const engineRef = useRef<number>();
-  const [transitioning, startTransition] = useTransition();
 
   const ask = useCallback((message: string, options?: {
     engine?: number;
     headers?: Record<string, string>;
   }) => {
-    router.push(`/c/new?${buildUrlParams({ message, engine }).toString()}`);
-
     __setMessage(message);
+    startTransition(() => {
+      router.push(`/c/new`);
+    });
+
   }, []);
-  const disabled = loading || transitioning;
+
+  useEffect(() => {
+    if (!transition) {
+      onFinish?.();
+    }
+  }, [transition]);
 
   return {
     ask,
@@ -27,7 +32,7 @@ export function useAsk (onFinish?: () => void) {
       engineRef.current = engine;
       setEngine(engine);
     },
-    loading: disabled,
+    loading: transition,
   };
 }
 

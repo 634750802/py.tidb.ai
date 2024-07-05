@@ -1,18 +1,18 @@
 import type { ChatMessageSource } from '@/api/chats';
-import { type ConversationMessageGroupProps } from '@/components/chat/use-grouped-conversation-messages';
+import { type MyConversationMessageGroup } from '@/components/chat/use-grouped-conversation-messages';
 import { parseSource } from '@/components/chat/utils';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { LinkIcon, TextSearchIcon } from 'lucide-react';
 import { useMemo } from 'react';
 
-export function MessageContextSources ({ group }: { group: ConversationMessageGroupProps }) {
-  const { context } = group.assistantAnnotation;
-  if (!context || context.length === 0) {
+export function MessageContextSources ({ group }: { group: MyConversationMessageGroup }) {
+  const { sources } = group.assistantMessage;
+  if (!sources || sources.length === 0) {
     return null;
   }
 
   const uriSet = new Set<string>();
-  const reducedContext = context.filter(source => {
+  const reducedContext = sources.filter(source => {
     if (uriSet.has(source.source_uri)) {
       return false;
     }

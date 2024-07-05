@@ -1,16 +1,11 @@
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useMyChatContext } from '@/components/chat/context';
-import type { ConversationMessageGroupProps } from '@/components/chat/use-grouped-conversation-messages';
+import { getStateOfMessage, type MyConversationMessageGroup } from '@/components/chat/use-grouped-conversation-messages';
 // import { type ServerGraphData } from '@/components/graph/api';
 // import { NetworkViewer } from '@/components/graph/components/NetworkViewer';
 // import { useNetwork } from '@/components/graph/useNetwork';
 // import { getTraceId } from '@/core/services/feedback/utils';
 // import { fetcher } from '@/lib/fetch';
-import { PencilIcon } from 'lucide-react';
-import Link from 'next/link';
-import useSWR from 'swr';
 
-export function KnowledgeGraphDebugInfo ({ group }: { group: ConversationMessageGroupProps }) {
+export function KnowledgeGraphDebugInfo ({ group }: { group: MyConversationMessageGroup }) {
   // const auth = useAuth();
   // const index_id = 3; // FIXME Magic value;
   // const canEdit = !!auth.me?.is_superuser;
@@ -48,12 +43,11 @@ export function KnowledgeGraphDebugInfo ({ group }: { group: ConversationMessage
   return null;
 }
 
-function couldFetchKnowledgeGraphDebugInfo (group: ConversationMessageGroupProps) {
-  switch (group.assistantAnnotation.state) {
-    case 'ERROR':
+function couldFetchKnowledgeGraphDebugInfo (group: MyConversationMessageGroup) {
+  switch (getStateOfMessage(group.assistantMessage)) {
     case 'CONNECTING':
-    case 'CREATING':
-    case 'KG_RETRIEVING':
+    case 'TRACE':
+    case 'KG_RETRIEVAL':
       return false;
     default:
       return true;

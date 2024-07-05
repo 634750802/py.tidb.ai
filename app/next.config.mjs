@@ -7,14 +7,6 @@ const nextConfig = withSvgr({
     // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
     missingSuspenseWithCSRBailout: false,
   },
-  rewrites: async () => ({
-    fallback: [
-      {
-        source: '/api/:slug*',
-        destination: 'https://tidbai-dev.htapdb.com/api/:slug*',
-      }
-    ],
-  })
 });
 
 export default nextConfig;

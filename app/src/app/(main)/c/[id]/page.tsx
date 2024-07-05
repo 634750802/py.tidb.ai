@@ -23,20 +23,10 @@ export default async function ChatDetailPage ({ params }: { params: { id: string
 
   const me = await auth();
 
-  let chat: Chat;
+  let chat: Chat | undefined;
   let messages: ChatMessage[];
 
   if (id === 'new') {
-    chat = {
-      id: 'new',
-      engine_id: 0,
-      engine_options: {},
-      updated_at: new Date(),
-      created_at: new Date(),
-      title: 'Creating chat...',
-      user_id: me?.id ?? null,
-      deleted_at: null,
-    };
     messages = [];
   } else {
     const detail = await cachedGetChat(id);
@@ -48,10 +38,10 @@ export default async function ChatDetailPage ({ params }: { params: { id: string
   return (
     <div className="xl:pr-side">
       <Conversation
-        open={!!me && me.id === chat.user_id}
-        id={chat.id}
+        open={!!me && me.id === chat?.user_id}
+        chat={chat}
         history={messages}
-        engineOptions={chat.engine_options}
+        engineOptions={chat?.engine_options ?? {}}
       />
     </div>
   );

@@ -1,33 +1,8 @@
-import type { ConversationMessageGroupProps } from '@/components/chat/use-grouped-conversation-messages';
+import type { OngoingConversationMessageGroup } from '@/components/chat/use-grouped-conversation-messages';
 import { LoaderIcon } from 'lucide-react';
 
-export function MessageAnnotation ({ group }: { group: ConversationMessageGroupProps }) {
-  const { assistantAnnotation } = group;
-  let text: string | undefined;
-  switch (assistantAnnotation.state) {
-    case 'CONNECTING':
-      text = assistantAnnotation.display || 'Connecting to server...';
-      break;
-    case 'CREATING':
-      text = assistantAnnotation.display || 'Preparing chat...';
-      break;
-    case 'KG_RETRIEVING':
-      text = assistantAnnotation.display || 'Retrieving knowledge...';
-      break;
-    case 'SEARCHING':
-      text = assistantAnnotation.display || 'Searching...';
-      break;
-    case 'RERANKING':
-      text = assistantAnnotation.display || 'Reranking...';
-      break;
-    case 'GENERATING':
-      text = assistantAnnotation.display || 'Generating...';
-      break;
-  }
-
-  if (!text) {
-    return null;
-  }
+export function MessageAnnotation ({ group }: { group: OngoingConversationMessageGroup }) {
+  let text: string | undefined = group.assistantMessage.display;
 
   return (
     <div className="text-muted-foreground leading-tight">

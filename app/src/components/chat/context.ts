@@ -1,8 +1,8 @@
-import type { useMyChat } from '@/components/chat/use-my-chat';
+import type { UseChatReturns } from '@/components/chat/use-chat';
 import { createContext, useContext } from 'react';
 import type { ChatEngineOptions } from './utils';
 
-const MyChatContext = createContext<ReturnType<typeof useMyChat>>(null as any);
+const MyChatContext = createContext<UseChatReturns>(null as any);
 const ChatEngineOptions = createContext<ChatEngineOptions | null>(null);
 
 export const useMyChatContext = () => useContext(MyChatContext);

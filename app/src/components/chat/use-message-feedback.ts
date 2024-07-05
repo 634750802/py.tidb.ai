@@ -24,12 +24,12 @@ export type ContentSource = {
   kgSources: Record<string, any>
 }
 
-export function useMessageFeedback (messageId: number, enabled: boolean): UseMessageFeedbackReturns {
+export function useMessageFeedback (messageId: number | undefined, enabled: boolean): UseMessageFeedbackReturns {
   const [feedback, setFeedback] = useState<FeedbackParams>();
   const isLoading = false;
   const isValidating = false;
   const [acting, setActing] = useState(false);
-  const disabled = isValidating || isLoading || acting || !enabled;
+  const disabled = messageId == null && isValidating || isLoading || acting || !enabled;
 
   // const contentData = useSWR((enabled && !disabled) ? ['get', `/api/v1/chats/${chatId}/messages/${messageId}/content-sources`] : undefined, fetcher<ContentSource>, { keepPreviousData: true, revalidateIfStale: false, revalidateOnReconnect: false });
 
@@ -37,6 +37,9 @@ export function useMessageFeedback (messageId: number, enabled: boolean): UseMes
     feedbackData: feedback,
     disabled,
     feedback: async (action, /* detail, */ comment) => {
+      if (!messageId) {
+        return;
+      }
       setActing(true);
       await postFeedback(messageId, { feedback_type: action, comment }).finally(() => setActing(false));
       setFeedback({ feedback_type: action, comment });

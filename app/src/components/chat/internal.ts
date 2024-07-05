@@ -1,4 +1,4 @@
-import type { useChat } from 'ai/react';
+import type { useChat } from '@/components/chat/use-chat';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
@@ -18,12 +18,13 @@ export function __useHandleInitialMessage (isNew: boolean, chat: ReturnType<type
 
   useEffect(() => {
     if (internalState.message) {
-      chat.setMessages([
-        { id: 'good-question', content: internalState.message, role: 'user' },
-      ]);
-      internalState.message = '';
       setWaiting(true);
-      chat.reload().finally(() => setWaiting(false));
+      chat.reset();
+      void chat.post({ content: internalState.message }, () => {
+        setWaiting(false);
+      });
+      window.document.title = internalState.message;
+      internalState.message = '';
       handled.current = true;
     }
 

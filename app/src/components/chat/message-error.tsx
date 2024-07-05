@@ -1,13 +1,11 @@
-import type { ConversationMessageGroupProps } from '@/components/chat/use-grouped-conversation-messages';
+import type { MyConversationMessageGroup } from '@/components/chat/use-grouped-conversation-messages';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export function MessageError ({ group }: { group: ConversationMessageGroupProps }) {
+export function MessageError ({ group }: { group: MyConversationMessageGroup }) {
   let error: string | undefined;
 
-  if (group.assistantAnnotation.state === 'ERROR') {
-    error = group.assistantAnnotation.display ?? 'Unknown error';
-  } else if (group.assistantMessageError) {
-    error = group.assistantMessageError;
+  if (group.assistantMessage.error) {
+    error = group.assistantMessage.error;
   }
 
   if (error) {

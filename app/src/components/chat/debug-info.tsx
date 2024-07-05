@@ -1,18 +1,18 @@
 import { useChatEngineOptions } from '@/components/chat/context';
 import { KnowledgeGraphDebugInfo } from '@/components/chat/knowledge-graph-debug-info';
 // import { MessageLangfuse } from '@/components/chat/message-langfuse';
-import type { ConversationMessageGroupProps } from '@/components/chat/use-grouped-conversation-messages';
+import type { MyConversationMessageGroup } from '@/components/chat/use-grouped-conversation-messages';
 import { Dialog, DialogContent, DialogHeader, DialogPortal, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WorkflowIcon } from 'lucide-react';
 import 'react-json-view-lite/dist/index.css';
 
 export interface DebugInfoProps {
-  group: ConversationMessageGroupProps;
+  group: MyConversationMessageGroup;
 }
 
 export function DebugInfo ({ group }: DebugInfoProps) {
-  const traceURL = group.assistantAnnotation.traceURL;
+  const traceURL = group.assistantMessage.trace_url;
   const { graph_retriever, retriever, prompts, llm, reranker, metadata_filter } = useChatEngineOptions() ?? {};
 
   return (

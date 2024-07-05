@@ -1,6 +1,6 @@
 import { useMyChatContext } from '@/components/chat/context';
 import { MessageFeedback } from '@/components/chat/message-feedback';
-import type { ConversationMessageGroupProps } from '@/components/chat/use-grouped-conversation-messages';
+import type { MyConversationMessageGroup } from '@/components/chat/use-grouped-conversation-messages';
 import { useMessageFeedback } from '@/components/chat/use-message-feedback';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -9,9 +9,9 @@ import copy from 'copy-to-clipboard';
 import { ClipboardCheckIcon, ClipboardIcon, MessageSquareHeartIcon, MessageSquarePlusIcon, RefreshCwIcon } from 'lucide-react';
 import { useState } from 'react';
 
-export function MessageOperations ({ group }: { group: ConversationMessageGroupProps }) {
-  const { handleRegenerate } = useMyChatContext();
-  const { feedbackData, feedback: callFeedback, disabled } = useMessageFeedback(group.assistantAnnotation.message_id, !!group.assistantAnnotation.traceURL);
+export function MessageOperations ({ group }: { group: MyConversationMessageGroup }) {
+  const { regenerate } = useMyChatContext();
+  const { feedbackData, feedback: callFeedback, disabled } = useMessageFeedback(group.assistantMessage.id, !!group.assistantMessage.trace_url);
   const [copied, setCopied] = useState(false);
   if (!group.finished) {
     return;
@@ -23,7 +23,7 @@ export function MessageOperations ({ group }: { group: ConversationMessageGroupP
           size="sm"
           className="gap-1 text-xs px-2 py-1 h-max"
           variant="ghost"
-          onClick={() => handleRegenerate(group.assistantMessage.id)}
+          onClick={() => regenerate(group.assistantMessage.id)}
           disabled
         >
           <RefreshCwIcon size="1em" />
