@@ -11,8 +11,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { getErrorMessage } from '@/lib/errors';
+import { cn } from '@/lib/utils';
 import { AlertTriangleIcon, InfoIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import './conversation-message-groups.scss'
 
 const enableDebug = !process.env.NEXT_PUBLIC_DISABLE_DEBUG_PANEL;
 
@@ -36,8 +38,20 @@ export function ConversationMessageGroups ({}: {}) {
 
 function ConversationMessageGroup ({ group }: { group: MyConversationMessageGroup }) {
   const [debugInfoOpen, setDebugInfoOpen] = useState(false);
+  const [highlight, setHighlight] = useState(false);
+  useEffect(() => {
+    if (location.hash.slice(1) === String(group.assistantMessage.id)) {
+      setHighlight(true);
+      document.getElementById(String(group.assistantMessage.id))?.scrollIntoView({ behavior: 'instant', block: 'start' })
+    }
+  }, []);
+
   return (
-    <section className="space-y-6 p-4 pt-12 border-b pb-10 last-of-type:border-b-0 last-of-type:border-pb-4">
+    <section
+      id={String(group.assistantMessage.id)}
+      className={cn('space-y-6 p-4 pt-12 border-b pb-10 last-of-type:border-b-0 last-of-type:border-pb-4', highlight && 'animate-highlight')}
+      onAnimationEnd={() => setHighlight(false)}
+    >
       <Collapsible open={debugInfoOpen} onOpenChange={setDebugInfoOpen}>
         <div className="relative pr-12">
           <h2 className="text-2xl font-normal">{group.userMessage.content}</h2>
