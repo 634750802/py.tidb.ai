@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 const authReason = ['Access denied', 'Unauthorized'];
 
-export default function ({ error }: { error: Error }) {
+export default function ChatErrorPage ({ error }: { error: Error }) {
   const auth = useAuth();
 
   return (
