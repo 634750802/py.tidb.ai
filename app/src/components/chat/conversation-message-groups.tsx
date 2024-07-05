@@ -1,4 +1,3 @@
-import { useMyChatContext } from '@/components/chat/context';
 import { DebugInfo } from '@/components/chat/debug-info';
 import { MessageAnnotation } from '@/components/chat/message-annotation';
 import { MessageContent } from '@/components/chat/message-content';
@@ -6,6 +5,7 @@ import { MessageContextSources } from '@/components/chat/message-content-sources
 import { MessageError } from '@/components/chat/message-error';
 import { MessageHeading } from '@/components/chat/message-heading';
 import { MessageOperations } from '@/components/chat/message-operations';
+import type { UseChatReturns } from '@/components/chat/use-chat';
 import { type MyConversationMessageGroup, useGroupedConversationMessages } from '@/components/chat/use-grouped-conversation-messages';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -14,18 +14,18 @@ import { getErrorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
 import { AlertTriangleIcon, InfoIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import './conversation-message-groups.scss'
+import './conversation-message-groups.scss';
 
 const enableDebug = !process.env.NEXT_PUBLIC_DISABLE_DEBUG_PANEL;
 
-export function ConversationMessageGroups ({}: {}) {
-  const { error, messages, ongoingMessage, isLoading } = useMyChatContext();
-  const groups = useGroupedConversationMessages(messages, ongoingMessage, isLoading, error);
+export function ConversationMessageGroups ({ myChat }: { myChat: UseChatReturns }) {
+  const { error } = myChat;
+  const groups = useGroupedConversationMessages(myChat);
 
   return (
     <div className="space-y-8">
       {groups.map(group => (
-        <ConversationMessageGroup key={group.id} group={group} />
+        <ConversationMessageGroup key={group.id} group={group} myChat={myChat} />
       ))}
       {!!error && <Alert variant="destructive">
         <AlertTriangleIcon />
@@ -36,13 +36,13 @@ export function ConversationMessageGroups ({}: {}) {
   );
 }
 
-function ConversationMessageGroup ({ group }: { group: MyConversationMessageGroup }) {
+function ConversationMessageGroup ({ group, myChat }: { group: MyConversationMessageGroup, myChat: UseChatReturns }) {
   const [debugInfoOpen, setDebugInfoOpen] = useState(false);
   const [highlight, setHighlight] = useState(false);
   useEffect(() => {
     if (location.hash.slice(1) === String(group.assistantMessage.id)) {
       setHighlight(true);
-      document.getElementById(String(group.assistantMessage.id))?.scrollIntoView({ behavior: 'instant', block: 'start' })
+      document.getElementById(String(group.assistantMessage.id))?.scrollIntoView({ behavior: 'instant', block: 'start' });
     }
   }, []);
 
@@ -63,7 +63,7 @@ function ConversationMessageGroup ({ group }: { group: MyConversationMessageGrou
           </CollapsibleTrigger>}
         </div>
         <CollapsibleContent>
-          <DebugInfo group={group} />
+          <DebugInfo group={group} myChat={myChat} />
         </CollapsibleContent>
       </Collapsible>
 
@@ -74,7 +74,7 @@ function ConversationMessageGroup ({ group }: { group: MyConversationMessageGrou
         <MessageContent group={group} />
         {!group.finished && <MessageAnnotation group={group} />}
       </section>
-      <MessageOperations group={group} />
+      <MessageOperations group={group} myChat={myChat} />
     </section>
   );
 }

@@ -1,6 +1,8 @@
+import type { ChatEngineOptions } from '@/api/chat-engines';
 import type { Chat, ChatMessage, ChatMessageSource, PostChatParams } from '@/api/chats';
 import * as api from '@/api/chats';
 import { AppChatStreamState, type ChatMessageAnnotation } from '@/components/chat/chat-stream-state';
+import { getErrorMessage } from '@/lib/errors';
 import { useEffect, useRef, useState } from 'react';
 
 export type OngoingMessage = PendingOngoingMessage | FinishedOngoingMessage;
@@ -42,6 +44,8 @@ export interface UseChatOptions {
 
 export interface UseChatReturns {
   isNewChat: boolean;
+  engineOptions: ChatEngineOptions | undefined;
+
   messages: ChatMessage[];
   ongoingMessage: OngoingMessage | undefined;
   postingMessage: PostChatParams | undefined;
@@ -79,7 +83,7 @@ export function useChat ({ chat: initialChat, messages: initialMessages = [], on
         }
         switch (part.type) {
           case 'text':
-            setOngoingMessage(assertOngoingMessage(msg => ({ ...msg, content: msg.content + part.value })));
+            setOngoingMessage(assertOngoingMessage(msg => applyContent(msg, part.value)));
             break;
           case 'message_annotations':
             setOngoingMessage(assertOngoingMessage(msg => applyAnnotation(msg, part.value[0] as any)));
@@ -95,6 +99,7 @@ export function useChat ({ chat: initialChat, messages: initialMessages = [], on
 
       setOngoingMessage(optionalOngoingMessage(msg => ({ ...msg, finished: true } as FinishedOngoingMessage)));
     } catch (error) {
+      setOngoingMessage(optionalOngoingMessage(msg => ({ ...msg, error: getErrorMessage(error), finished: true } as FinishedOngoingMessage)));
       setError(error);
     }
   };
@@ -120,7 +125,7 @@ export function useChat ({ chat: initialChat, messages: initialMessages = [], on
         api.getChat(ongoingMessage.chatId)
           .then(({ chat, messages }) => {
             setChat(chat);
-            setMessages(messages.filter(msg => !!msg.finished_at));
+            setMessages(messages.filter(msg => msg.role === 'user' || !!msg.finished_at));
           });
       }
     }
@@ -136,6 +141,7 @@ export function useChat ({ chat: initialChat, messages: initialMessages = [], on
 
   return {
     isNewChat: !chat,
+    engineOptions: chat?.engine_options,
     messages,
     ongoingMessage,
     postingMessage,
@@ -172,6 +178,19 @@ function warnUnsupportedPartType (type: string, value: any) {
 
   console.warn(`Currently stream part type ${type} is not supported.`, value);
   warnedTypes.add(type);
+}
+
+function applyContent (msg: OngoingMessage, delta: string) {
+  msg = { ...msg };
+
+  if (msg.state !== AppChatStreamState.GENERATE_ANSWER) {
+    msg.state = AppChatStreamState.GENERATE_ANSWER;
+    msg.display = 'Generating answer...';
+  }
+
+  msg.content += delta;
+
+  return msg;
 }
 
 function applyAnnotation (msg: OngoingMessage, annotation: ChatMessageAnnotation) {

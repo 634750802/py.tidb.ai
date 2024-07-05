@@ -1,5 +1,6 @@
 import { ChatEngineOptionsDetails } from '@/components/chat-engine/chat-engine-options-details';
-import { useChatEngineOptions } from '@/components/chat/context';
+import { KnowledgeGraphDebugInfo } from '@/components/chat/knowledge-graph-debug-info';
+import type { UseChatReturns } from '@/components/chat/use-chat';
 // import { MessageLangfuse } from '@/components/chat/message-langfuse';
 import type { MyConversationMessageGroup } from '@/components/chat/use-grouped-conversation-messages';
 import { Dialog, DialogContent, DialogHeader, DialogPortal, DialogTrigger } from '@/components/ui/dialog';
@@ -9,11 +10,12 @@ import 'react-json-view-lite/dist/index.css';
 
 export interface DebugInfoProps {
   group: MyConversationMessageGroup;
+  myChat: UseChatReturns;
 }
 
-export function DebugInfo ({ group }: DebugInfoProps) {
+export function DebugInfo ({ group, myChat }: DebugInfoProps) {
   const traceURL = group.assistantMessage.trace_url;
-  const chatEngineOptions = useChatEngineOptions();
+  const chatEngineOptions = myChat.engineOptions;
 
   return (
     <div className="my-2 p-4 space-y-4 bg-card border rounded text-xs">
@@ -24,8 +26,9 @@ export function DebugInfo ({ group }: DebugInfoProps) {
         </a>
       </div>}
       {/*<MessageLangfuse group={group} />*/}
+      <KnowledgeGraphDebugInfo group={group} />
       {chatEngineOptions && (
-        <div className='space-y-4'>
+        <div className="space-y-4">
           <ChatEngineOptionsDetails detailed={false} options={chatEngineOptions} />
         </div>
       )}

@@ -1,5 +1,5 @@
-import { useMyChatContext } from '@/components/chat/context';
 import { MessageFeedback } from '@/components/chat/message-feedback';
+import type { UseChatReturns } from '@/components/chat/use-chat';
 import type { MyConversationMessageGroup } from '@/components/chat/use-grouped-conversation-messages';
 import { useMessageFeedback } from '@/components/chat/use-message-feedback';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,8 @@ import copy from 'copy-to-clipboard';
 import { ClipboardCheckIcon, ClipboardIcon, MessageSquareHeartIcon, MessageSquarePlusIcon, RefreshCwIcon } from 'lucide-react';
 import { useState } from 'react';
 
-export function MessageOperations ({ group }: { group: MyConversationMessageGroup }) {
-  const { regenerate } = useMyChatContext();
+export function MessageOperations ({ group, myChat }: { group: MyConversationMessageGroup, myChat: UseChatReturns }) {
+  const { regenerate } = myChat;
   const { feedbackData, feedback: callFeedback, disabled } = useMessageFeedback(group.assistantMessage.id, !!group.assistantMessage.trace_url);
   const [copied, setCopied] = useState(false);
   if (!group.finished) {

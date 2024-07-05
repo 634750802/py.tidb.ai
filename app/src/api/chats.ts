@@ -1,4 +1,5 @@
 import type { ChatEngineOptions } from '@/api/chat-engines';
+import { type KnowledgeGraph, knowledgeGraphSchema } from '@/api/graph';
 import { BASE_URL, buildUrlParams, handleErrors, handleResponse, opaqueCookieHeader, type Page, type PageParams, zodPage } from '@/lib/request';
 import { zodJsonDate } from '@/lib/zod';
 import { parseStreamPart } from 'ai';
@@ -125,6 +126,13 @@ export async function postFeedback (chatMessageId: number, feedback: FeedbackPar
     },
     body: JSON.stringify(feedback),
   }).then(handleErrors);
+}
+
+export async function getChatMessageSubgraph (chatMessageId: number): Promise<KnowledgeGraph> {
+  return await fetch(BASE_URL + `/api/v1/chat-messages/${chatMessageId}/subgraph`, {
+    headers: await opaqueCookieHeader(),
+  })
+    .then(handleResponse(knowledgeGraphSchema));
 }
 
 export async function* chat ({ chat_id, chat_engine = 'default', content, headers: headersInit, signal }: PostChatParams, onResponse?: (response: Response) => void) {

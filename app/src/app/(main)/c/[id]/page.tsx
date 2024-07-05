@@ -74,7 +74,6 @@ export default async function ChatDetailPage ({ params }: { params: { id: string
         open={!!me && me.id === chat?.user_id}
         chat={chat}
         history={messages}
-        engineOptions={chat?.engine_options ?? null}
       />
     </div>
   );

@@ -1,7 +1,6 @@
 import type { ChatMessage } from '@/api/chats';
 import { AppChatStreamState } from '@/components/chat/chat-stream-state';
-import { useMyChatContext } from '@/components/chat/context';
-import type { OngoingMessage } from '@/components/chat/use-chat';
+import type { OngoingMessage, UseChatReturns } from '@/components/chat/use-chat';
 import { useMemo } from 'react';
 
 export type MyConversationMessageGroup = FinishedConversationGroup | OngoingConversationMessageGroup;
@@ -32,8 +31,8 @@ export function getStateOfMessage (message: ChatMessage | OngoingMessage) {
   }
 }
 
-export function useGroupedConversationMessages (messages: ChatMessage[], ongoingMessage: OngoingMessage | undefined, isLoading: boolean, error: unknown) {
-  const { postingMessage } = useMyChatContext()
+export function useGroupedConversationMessages (myChat: UseChatReturns) {
+  const { error, messages, ongoingMessage, isLoading, postingMessage } = myChat;
 
   return useMemo(() => {
     const groups: MyConversationMessageGroup[] = [];
@@ -71,7 +70,7 @@ export function useGroupedConversationMessages (messages: ChatMessage[], ongoing
       } else if (postingMessage) {
         groups.push({
           id: -1,
-          userMessage: { content: postingMessage.content, id: -1 },
+          userMessage: { content: postingMessage.content, id: 0 },
           assistantMessage: ongoingMessage,
           finished: false,
         });
