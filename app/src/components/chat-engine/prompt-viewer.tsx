@@ -3,7 +3,7 @@
 import Highlight from 'highlight.js';
 import django from 'highlight.js/lib/languages/django';
 import { useEffect, useState } from 'react';
-import './prompt-preview.scss';
+import '../code-theme.scss';
 
 Highlight.registerLanguage('django', django);
 

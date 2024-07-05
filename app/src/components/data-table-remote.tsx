@@ -14,10 +14,14 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
 
+export interface PageApiOptions {
+  globalFilter: string
+}
+
 interface DataTableRemoteProps<TData, TValue> {
   idColumn: keyof TData;
   apiKey: string;
-  api: (page: PageParams) => Promise<Page<TData>>;
+  api: (page: PageParams, options: PageApiOptions) => Promise<Page<TData>>;
   columns: ColumnDef<TData, TValue>[];
   selectable?: boolean;
   batchOperations?: (rows: string[], revalidate: () => void) => ReactNode;
@@ -56,7 +60,7 @@ export function DataTableRemote<TData, TValue> ({
   }, [rowSelection]);
 
   // Fetch data.
-  const { data, mutate, isLoading, isValidating } = useSWR(`${apiKey}?page=${pagination.pageIndex}&size=${pagination.pageSize}`, () => api({ page: pagination.pageIndex + 1, size: pagination.pageSize }), {
+  const { data, mutate, isLoading, isValidating } = useSWR(`${apiKey}?page=${pagination.pageIndex}&size=${pagination.pageSize}&query=${globalFilter}`, () => api({ page: pagination.pageIndex + 1, size: pagination.pageSize }, { globalFilter }), {
     refreshInterval,
     revalidateOnReconnect: false,
     revalidateOnFocus: false,
@@ -66,7 +70,7 @@ export function DataTableRemote<TData, TValue> ({
 
   useEffect(() => {
     void mutate();
-  }, [pagination.pageSize, pagination.pageIndex]);
+  }, [pagination.pageSize, pagination.pageIndex, globalFilter]);
 
   // Column definitions.
   columns = useMemo(() => {
