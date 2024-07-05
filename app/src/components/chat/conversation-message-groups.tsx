@@ -16,7 +16,6 @@ import { AlertTriangleIcon, InfoIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import './conversation-message-groups.scss';
 
-const enableDebug = !process.env.NEXT_PUBLIC_DISABLE_DEBUG_PANEL;
 
 export function ConversationMessageGroups ({ myChat }: { myChat: UseChatReturns }) {
   const { error } = myChat;
@@ -37,6 +36,8 @@ export function ConversationMessageGroups ({ myChat }: { myChat: UseChatReturns 
 }
 
 function ConversationMessageGroup ({ group, myChat }: { group: MyConversationMessageGroup, myChat: UseChatReturns }) {
+  const enableDebug = !process.env.NEXT_PUBLIC_DISABLE_DEBUG_PANEL && !!group.id;
+
   const [debugInfoOpen, setDebugInfoOpen] = useState(false);
   const [highlight, setHighlight] = useState(false);
   useEffect(() => {

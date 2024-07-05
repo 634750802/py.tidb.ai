@@ -69,7 +69,7 @@ export function useGroupedConversationMessages (myChat: UseChatReturns) {
         });
       } else if (postingMessage) {
         groups.push({
-          id: -1,
+          id: 0,
           userMessage: { content: postingMessage.content, id: 0 },
           assistantMessage: ongoingMessage,
           finished: false,

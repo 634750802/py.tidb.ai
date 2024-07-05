@@ -77,7 +77,16 @@ export function useChat ({ chat: initialChat, messages: initialMessages = [], on
     setError(undefined);
     setOngoingMessage({ trace_url: null, state: AppChatStreamState.CONNECTING, display: 'Connecting to server...', content: '', finished: false });
     try {
-      for await (let part of api.chat({ ...params, chat_id: chat?.id, signal: ac.signal }, onResponse)) {
+      for await (let part of api.chat({ ...params, chat_id: chat?.id, signal: ac.signal }, (response) => {
+        onResponse?.(response);
+        if (chat) {
+          api.getChat(chat.id)
+            .then(({ chat, messages }) => {
+              setChat(chat);
+              setMessages(messages.filter(msg => msg.role === 'user' || !!msg.finished_at));
+            });
+        }
+      })) {
         if (ac.signal.aborted) {
           break;
         }
