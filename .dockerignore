@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.idea
+Dockerfile
+docker-compose.yml
+
+app/.env
+app/certificates

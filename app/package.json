@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --experimental-https",
     "build": "next build",
+    "build:standalone": "STANDALONE=1 next build --no-lint",
     "start": "next start",
     "lint": "next lint"
   },
