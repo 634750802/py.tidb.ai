@@ -1,8 +1,11 @@
 import { type Chat, type ChatMessage, getChat } from '@/api/chats';
 import { Conversation } from '@/components/chat/conversation';
+import { ErrorCard } from '@/components/error-card';
+import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/auth';
 import { isServerError } from '@/lib/request';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
@@ -29,10 +32,40 @@ export default async function ChatDetailPage ({ params }: { params: { id: string
   if (id === 'new') {
     messages = [];
   } else {
-    const detail = await cachedGetChat(id);
+    try {
 
-    chat = detail.chat;
-    messages = detail.messages;
+      const detail = await cachedGetChat(id);
+
+      chat = detail.chat;
+      messages = detail.messages;
+    } catch (error) {
+      if (isServerError(error, 403)) {
+        return (
+          <div className="h-screen flex items-center justify-center xl:pr-side bg-accent">
+            <ErrorCard
+              title="Access denied"
+              message="This chat is private"
+            >
+              <div className="flex gap-2 items-center mt-8">
+                {!me && (
+                  <Button asChild>
+                    <Link href="/auth/login">
+                      Login to continue
+                    </Link>
+                  </Button>
+                )}
+                <Button variant="ghost" asChild>
+                  <Link href="/">
+                    Back to homepage
+                  </Link>
+                </Button>
+              </div>
+            </ErrorCard>
+          </div>
+        );
+      }
+      throw error;
+    }
   }
 
   return (
@@ -53,9 +86,19 @@ export async function generateMetadata ({ params }: { params: { id: string } }):
       title: 'Creating chat... | tidb.ai',
     };
   }
-  const chat = await cachedGetChat(params.id);
+  try {
+    const chat = await cachedGetChat(params.id);
 
-  return {
-    title: chat.chat.title,
-  };
+    return {
+      title: chat.chat.title,
+    };
+  } catch (error) {
+    if (isServerError(error, 403)) {
+      return {};
+    } else {
+      throw error;
+    }
+  }
 }
+
+export const dynamic = 'force-dynamic';
