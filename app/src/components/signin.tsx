@@ -7,16 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Form, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { getErrorMessage } from '@/lib/errors';
+import { Loader2Icon } from 'lucide-react';
 // import { fetcher } from '@/lib/fetch';
 // import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
 export function Signin ({ callbackUrl }: { callbackUrl?: string }) {
   const router = useRouter();
 
   const [error, setError] = useState<string>();
+  const [transitioning, startTransition] = useTransition();
 
   const form = useForm<{ username: string; password: string }>();
 
@@ -24,12 +26,16 @@ export function Signin ({ callbackUrl }: { callbackUrl?: string }) {
     setError(undefined);
     try {
       await login(data);
-      router.replace(refineCallbackUrl(callbackUrl));
-      router.refresh();
+      startTransition(() => {
+        router.replace(refineCallbackUrl(callbackUrl));
+        router.refresh();
+      });
     } catch (error) {
       setError(getErrorMessage(error));
     }
   });
+
+  const loading = form.formState.isSubmitting || transitioning;
 
   return (
     <>
@@ -60,7 +66,10 @@ export function Signin ({ callbackUrl }: { callbackUrl?: string }) {
               )}
             />
           </FormItem>
-          <Button>Login</Button>
+          <Button className="!mt-4 w-full" disabled={loading}>
+            {loading && <Loader2Icon className="w-4 h-4 mr-2 animate-spin repeat-infinite" />}
+            {transitioning ? 'Redirecting...' : loading ? 'Logging in...' : 'Login'}
+          </Button>
         </form>
       </Form>
     </>
